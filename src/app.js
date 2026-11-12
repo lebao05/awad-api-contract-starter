@@ -10,6 +10,10 @@ import { createV1 } from './v1.js';
 
 const legacyError = (res, status, code, message, headers) => send(res, status, { error: code, message }, headers);
 const isPrice = (p) => typeof p === 'number' && Number.isFinite(p) && p > 0 && p <= 100000;
+const legacyHeaders = {
+  Deprecation: '@1792022400',
+  Sunset: 'Thu, 31 Dec 2026 23:59:59 GMT',
+};
 
 export function createApp(db) {
   const q = {
@@ -44,7 +48,9 @@ export function createApp(db) {
       const id = Number(parts[1]);
       const row = Number.isInteger(id) ? q.get.get(id) : undefined;
       if (!row) return legacyError(res, 404, 'not_found', `menu item ${parts[1]} not found`, h);
-      if (req.method === 'GET') return send(res, 200, legacyView(row), h);
+      if (req.method === 'GET') {
+        return send(res, 200, legacyView(row), { ...h, Link: `</v1/menu/${id}>; rel="successor-version"` });
+      }
       if (req.method === 'PATCH') {
         let body; try { body = JSON.parse((await readRaw(req)) || '{}'); } catch { body = null; }
         if (!body || !isPrice(body.price))
@@ -63,13 +69,13 @@ export function createApp(db) {
     if (url.pathname === '/v1' || url.pathname.startsWith('/v1/')) {
       if (await v1(req, res, url)) return;
     }
-    return legacy(req, res, url, {});
+    return legacy(req, res, url, legacyHeaders);
   }
 
   return createServer((req, res) => {
     handle(req, res).catch((e) => {
       console.error(e);
-      if (!res.headersSent) legacyError(res, 500, 'internal', e.message);
+      if (!res.headersSent) legacyError(res, 500, 'internal', e.message, legacyHeaders);
     });
   });
 }
