@@ -1,0 +1,68 @@
+
+> awad-api-contract-starter@1.0.0 contract
+> node --test --test-reporter=spec test/contract.test.js
+
+(node:12136) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ §2 errors
+  ✔ §2 an unknown /v1 path is a 404 problem (55.1883ms)
+  ✔ §2 malformed JSON is 400 invalid-json (10.435ms)
+  ✔ §2 validation lists every broken field, with a JSON Pointer each (5.6419ms)
+  ✔ §2 a JSON body that is not an object is a validation error, not a crash (12.338ms)
+Error: no such table: orders
+    at handleV1 (file:///D:/advanced_web/IA3/awad-api-contract-starter/src/v1.js:331:64)
+    at handle (file:///D:/advanced_web/IA3/awad-api-contract-starter/src/app.js:70:17)
+    at Server.<anonymous> (file:///D:/advanced_web/IA3/awad-api-contract-starter/src/app.js:76:5)
+    at Server.emit (node:events:519:28)
+    at parserOnIncoming (node:_http_server:1173:12)
+    at HTTPParser.parserOnHeadersComplete (node:_http_common:121:17) {
+  code: 'ERR_SQLITE_ERROR',
+  errcode: 1,
+  errstr: 'SQL logic error'
+}
+  ✔ §2 a 500 is a problem that says nothing about the inside (9.7831ms)
+✔ §2 errors (96.9651ms)
+▶ §4.1 menu
+  ✔ §4.1 GET /v1/menu/{id} returns priceVnd in dong (7.3729ms)
+  ✔ §4.1 unknown or malformed id is 404 not-found (4.1845ms)
+✔ §4.1 menu (12.0283ms)
+▶ §4.2 placing an order
+  ✔ §4.2 201, Location, totals in dong, lines in the order sent (7.8965ms)
+  ✔ §4.2 unknown menu item is 422 with a pointer per unknown line (4.4687ms)
+  ✔ §4.2 rules on fields: tableId 1..200, 1..20 lines, qty 1..20 (14.3145ms)
+  ✔ §4.2 a unit price is the price when the order was placed (7.5434ms)
+  ✔ §4.3 GET /v1/orders/{id} of an unknown order is 404 not-found (1.5941ms)
+✔ §4.2 placing an order (36.505ms)
+▶ §4.2 idempotency
+  ✔ §4.2 no Idempotency-Key is 400 and creates nothing (6.9537ms)
+  ✔ §4.2 the key is checked before the body (2.37ms)
+  ✔ §4.2 a retry with the same key and body replays the first response (5.247ms)
+  ✔ §4.2 "the same body" means the same JSON value: key order and whitespace do not matter (5.1585ms)
+  ✔ §4.2 the same key with a different body is 422 and creates nothing (4.4263ms)
+  ✔ §4.2 only a 201 is stored: after a 4xx the same key may be used with a fixed body (7.1584ms)
+  ✔ §4.2 the same key sent five times at once places one order (13.242ms)
+✔ §4.2 idempotency (45.0651ms)
+▶ §4.4 pagination
+  ✔ §4.4 newest first; every order exactly once; default page size 20 (37.0412ms)
+  ✔ §4.4 nextCursor is null exactly when there is nothing more (13.957ms)
+  ✔ §4.4 an order placed between two pages does not shift the next page (13.2205ms)
+  ✔ §4.4 out-of-range limit is an error, not clamped (5.5606ms)
+  ✔ §4.4 a cursor the server cannot read is 400 validation (6.328ms)
+✔ §4.4 pagination (76.4826ms)
+▶ §5 versions and the legacy API
+  ✔ §5 legacy GET /menu/{id} is unchanged, and announces its end (2.2551ms)
+  ✔ §5 legacy errors keep their old shape — the new error model is for /v1 only (2.9457ms)
+  ✔ §5 a price written through the legacy API reads the same through v1 (2.2582ms)
+✔ §5 versions and the legacy API (7.682ms)
+▶ §4 two instances, one database (as in session 4)
+  ✔ §4.2 a retry that lands on the other instance is still a replay (21.3024ms)
+  ✔ §4.4 a cursor from one instance works on the other (30.7752ms)
+✔ §4 two instances, one database (as in session 4) (1105.9842ms)
+ℹ tests 29
+ℹ suites 7
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1523.287
